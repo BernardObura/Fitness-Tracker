@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Library - FitTrack</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .exercise-card {
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .exercise-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .exercise-icon i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .difficulty.beginner {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+        
+        .difficulty.intermediate {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .difficulty.advanced {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        [data-theme="dark"] .difficulty.beginner {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+        
+        [data-theme="dark"] .difficulty.intermediate {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        [data-theme="dark"] .difficulty.advanced {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+        
+        .exercise-details {
+            flex: 1;
+        }
+        
+        .exercise-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .exercise-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .meta-item {
+            font-size: 0.85rem;
+        }
+        
+        .meta-label {
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        
+        .meta-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .search-wrapper {
+            position: relative;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .search-input {
+            padding-left: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>FitTrack</h3>
+                <button class="btn-close d-md-none" id="closeSidebar" aria-label="Close"></button>
+            </div>
+            <div class="sidebar-user">
+                <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User Profile" class="user-avatar">
+                <div class="user-info">
+                    <p class="user-name">John Doe</p>
+                    <p class="user-email">john@example.com</p>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="workout-plans.html"><i class="fas fa-list-check"></i> Workout Plans</a></li>
+                <li class="active"><a href="exercises.html"><i class="fas fa-dumbbell"></i> Exercises</a></li>
+                <li><a href="progress.html"><i class="fas fa-chart-line"></i> Progress</a></li>
+                <li><a href="log-workout.html"><i class="fas fa-calendar-plus"></i> Log Workout</a></li>
+                <li><a href="settings.html"><i class="fas fa-gear"></i> Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <button class="btn btn-theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Exercise Library</h1>
+                <div class="top-nav-right">
+                    <button class="btn btn-theme-toggle-mobile"><i class="fas fa-moon"></i></button>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle profile-btn" type="button" data-bs-toggle="dropdown">
+                            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="settings.html">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="container-fluid content-area">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+                    <div>
+                        <h2 class="mb-1">Exercise Library</h2>
+                        <p class="text-secondary mb-0">Browse and discover exercises for your workouts</p>
+                    </div>
+                    <button class="btn btn-primary mt-3 mt-md-0">
+                        <i class="fas fa-plus-circle me-2"></i>Add Exercise
+                    </button>
+                </div>
+                
+                <!-- Search and Filter Card -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="search-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" class="form-control search-input" placeholder="Search exercises...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select">
+                                    <option value="">All Categories</option>
+                                    <option value="strength">Strength</option>
+                                    <option value="cardio">Cardio</option>
+                                    <option value="flexibility">Flexibility</option>
+                                    <option value="balance">Balance</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select">
+                                    <option value="">All Muscle Groups</option>
+                                    <option value="chest">Chest</option>
+                                    <option value="back">Back</option>
+                                    <option value="legs">Legs</option>
+                                    <option value="shoulders">Shoulders</option>
+                                    <option value="arms">Arms</option>
+                                    <option value="core">Core</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select">
+                                    <option value="">All Levels</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Exercise Grid -->
+                <div class="row">
+                    <!-- Exercise Card 1 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Barbell Bench Press</h5>
+                                        <span class="difficulty intermediate">Intermediate</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">A compound exercise that targets the chest, shoulders, and triceps by pressing weight upward while lying on a bench.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Chest</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">Barbell, Bench</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 2 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Squat</h5>
+                                        <span class="difficulty intermediate">Intermediate</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">A fundamental compound exercise that targets the quadriceps, hamstrings, and glutes by bending at the knees and hips.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Quadriceps</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">Barbell, Rack</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 3 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Pull-Up</h5>
+                                        <span class="difficulty advanced">Advanced</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">An upper body compound exercise that targets the back, biceps and shoulders by pulling your body up to a bar.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Back</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">Pull-Up Bar</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 4 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-running"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Running</h5>
+                                        <span class="difficulty beginner">Beginner</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">A cardiovascular exercise that improves endurance, burns calories, and works the lower body muscle groups.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Full Body</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">None</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 5 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Deadlift</h5>
+                                        <span class="difficulty advanced">Advanced</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">A compound exercise that engages multiple muscle groups including the back, glutes, hamstrings and core.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Back, Legs</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">Barbell</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 6 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Push-Up</h5>
+                                        <span class="difficulty beginner">Beginner</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">A bodyweight exercise that targets the chest, shoulders, and triceps by pushing your body away from the ground.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Chest</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">None</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 7 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Dumbbell Shoulder Press</h5>
+                                        <span class="difficulty intermediate">Intermediate</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">An upper body exercise that targets the shoulders and triceps by pressing dumbbells overhead.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Shoulders</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">Dumbbells</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 8 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Bicep Curl</h5>
+                                        <span class="difficulty beginner">Beginner</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">An isolation exercise that targets the biceps by curling a weight from a hanging position to shoulder level.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Biceps</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">Dumbbells, Barbell</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exercise Card 9 -->
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card exercise-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="exercise-icon">
+                                        <i class="fas fa-dumbbell"></i>
+                                    </div>
+                                    <div class="exercise-details">
+                                        <h5 class="exercise-title">Plank</h5>
+                                        <span class="difficulty beginner">Beginner</span>
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-3">A core exercise that strengthens the abdominals, back, and shoulders by maintaining a position similar to a push-up for extended periods.</p>
+                                <div class="exercise-meta">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Target Muscle</span>
+                                        <span class="meta-value">Core</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span class="meta-label">Equipment</span>
+                                        <span class="meta-value">None</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-primary w-100">View Details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="Exercise library pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>

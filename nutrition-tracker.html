@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker - FitTrack</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .date-range {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .date-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .meal-card {
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .meal-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .meal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .meal-title i {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+        }
+        
+        .meal-body {
+            padding: 1.25rem;
+        }
+        
+        .meal-empty {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        .meal-empty i {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .meal-empty p {
+            color: var(--text-secondary);
+            margin-bottom: 1.25rem;
+        }
+        
+        .food-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: background-color var(--transition-speed);
+        }
+        
+        .food-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .food-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .food-icon i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+        
+        .food-details {
+            flex: 1;
+        }
+        
+        .food-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .food-info {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .food-nutrients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .nutrient-item {
+            font-size: 0.85rem;
+        }
+        
+        .food-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .nutritional-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nutrient-card {
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: background-color var(--transition-speed);
+        }
+        
+        .nutrient-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .nutrient-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+        
+        .nutrient-card.calories {
+            background-color: var(--primary-light);
+        }
+        
+        .nutrient-card.calories .nutrient-value {
+            color: var(--primary-color);
+        }
+        
+        .macro-chart-container {
+            height: 250px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .add-food-form {
+            margin-top: 1rem;
+        }
+        
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .serving-size-dropdown {
+            width: 120px;
+        }
+        
+        .form-label.food-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-control.food-input, .form-select.food-input {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            transition: background-color var(--transition-speed), border-color var(--transition-speed);
+        }
+        
+        .form-control.food-input:focus, .form-select.food-input:focus {
+            background-color: var(--bg-light);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>FitTrack</h3>
+                <button class="btn-close d-md-none" id="closeSidebar" aria-label="Close"></button>
+            </div>
+            <div class="sidebar-user">
+                <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User Profile" class="user-avatar">
+                <div class="user-info">
+                    <p class="user-name">John Doe</p>
+                    <p class="user-email">john@example.com</p>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="workout-plans.html"><i class="fas fa-list-check"></i> Workout Plans</a></li>
+                <li><a href="exercises.html"><i class="fas fa-dumbbell"></i> Exercises</a></li>
+                <li><a href="progress.html"><i class="fas fa-chart-line"></i> Progress</a></li>
+                <li><a href="log-workout.html"><i class="fas fa-calendar-plus"></i> Log Workout</a></li>
+                <li class="active"><a href="nutrition-tracker.html"><i class="fas fa-utensils"></i> Nutrition</a></li>
+                <li><a href="settings.html"><i class="fas fa-gear"></i> Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <button class="btn btn-theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Nutrition Tracker</h1>
+                <div class="top-nav-right">
+                    <button class="btn btn-theme-toggle-mobile"><i class="fas fa-moon"></i></button>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle profile-btn" type="button" data-bs-toggle="dropdown">
+                            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="settings.html">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="container-fluid content-area">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+                    <div>
+                        <h2 class="mb-1">Nutrition Tracker</h2>
+                        <p class="text-secondary mb-0">
+                            Monitor your daily food intake and nutritional goals
+                        </p>
+                    </div>
+                    <button class="btn btn-primary mt-3 mt-md-0" data-bs-toggle="modal" data-bs-target="#foodSearchModal">
+                        <i class="fas fa-plus-circle me-2"></i>Add Food
+                    </button>
+                </div>
+                
+                <!-- Date Navigation -->
+                <div class="date-nav mb-4">
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="date-range mx-3">Wednesday, April 25, 2025</span>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <!-- Nutritional Summary -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Daily Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="nutritional-summary">
+                            <div class="nutrient-card calories">
+                                <p class="nutrient-value">1,850</p>
+                                <p class="nutrient-label">Calories</p>
+                            </div>
+                            <div class="nutrient-card">
+                                <p class="nutrient-value">98g</p>
+                                <p class="nutrient-label">Protein</p>
+                            </div>
+                            <div class="nutrient-card">
+                                <p class="nutrient-value">210g</p>
+                                <p class="nutrient-label">Carbs</p>
+                            </div>
+                            <div class="nutrient-card">
+                                <p class="nutrient-value">65g</p>
+                                <p class="nutrient-label">Fat</p>
+                            </div>
+                            <div class="nutrient-card">
+                                <p class="nutrient-value">28g</p>
+                                <p class="nutrient-label">Fiber</p>
+                            </div>
+                            <div class="nutrient-card">
+                                <p class="nutrient-value">1,950mg</p>
+                                <p class="nutrient-label">Sodium</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="macro-chart-container">
+                                    <canvas id="macroChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="macro-chart-container">
+                                    <canvas id="calorieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <span class="px-2">Protein 25%</span>
+                            </div>
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 45%;" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">
+                                <span class="px-2">Carbs 45%</span>
+                            </div>
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
+                                <span class="px-2">Fat 30%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Breakfast -->
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h5 class="meal-title">
+                            <i class="fas fa-sun"></i>
+                            Breakfast
+                        </h5>
+                        <div>
+                            <span class="badge bg-primary">420 kcal</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#foodSearchModal" data-meal="breakfast">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="meal-body">
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-egg"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Scrambled Eggs</div>
+                                <div class="food-info">2 large eggs • 140g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">180 kcal</span>
+                                    <span class="nutrient-item">12g protein</span>
+                                    <span class="nutrient-item">1g carbs</span>
+                                    <span class="nutrient-item">14g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-bread-slice"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Whole Grain Toast</div>
+                                <div class="food-info">2 slices • 80g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">160 kcal</span>
+                                    <span class="nutrient-item">6g protein</span>
+                                    <span class="nutrient-item">30g carbs</span>
+                                    <span class="nutrient-item">2g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-apple-whole"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Coffee with Milk</div>
+                                <div class="food-info">1 cup • 240ml</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">80 kcal</span>
+                                    <span class="nutrient-item">4g protein</span>
+                                    <span class="nutrient-item">8g carbs</span>
+                                    <span class="nutrient-item">3g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lunch -->
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h5 class="meal-title">
+                            <i class="fas fa-cloud-sun"></i>
+                            Lunch
+                        </h5>
+                        <div>
+                            <span class="badge bg-primary">650 kcal</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#foodSearchModal" data-meal="lunch">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="meal-body">
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-drumstick-bite"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Grilled Chicken Breast</div>
+                                <div class="food-info">1 medium breast • 120g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">200 kcal</span>
+                                    <span class="nutrient-item">38g protein</span>
+                                    <span class="nutrient-item">0g carbs</span>
+                                    <span class="nutrient-item">4g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-bowl-rice"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Brown Rice</div>
+                                <div class="food-info">1 cup cooked • 195g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">250 kcal</span>
+                                    <span class="nutrient-item">5g protein</span>
+                                    <span class="nutrient-item">53g carbs</span>
+                                    <span class="nutrient-item">2g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-carrot"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Mixed Vegetables</div>
+                                <div class="food-info">1 cup • 150g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">80 kcal</span>
+                                    <span class="nutrient-item">4g protein</span>
+                                    <span class="nutrient-item">16g carbs</span>
+                                    <span class="nutrient-item">0g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-oil-can"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Olive Oil</div>
+                                <div class="food-info">1 tbsp • 14g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">120 kcal</span>
+                                    <span class="nutrient-item">0g protein</span>
+                                    <span class="nutrient-item">0g carbs</span>
+                                    <span class="nutrient-item">14g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dinner -->
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h5 class="meal-title">
+                            <i class="fas fa-moon"></i>
+                            Dinner
+                        </h5>
+                        <div>
+                            <span class="badge bg-primary">580 kcal</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#foodSearchModal" data-meal="dinner">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="meal-body">
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-fish"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Grilled Salmon</div>
+                                <div class="food-info">1 fillet • 140g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">280 kcal</span>
+                                    <span class="nutrient-item">34g protein</span>
+                                    <span class="nutrient-item">0g carbs</span>
+                                    <span class="nutrient-item">14g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Sweet Potato</div>
+                                <div class="food-info">1 medium • 130g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">160 kcal</span>
+                                    <span class="nutrient-item">2g protein</span>
+                                    <span class="nutrient-item">37g carbs</span>
+                                    <span class="nutrient-item">0g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Broccoli</div>
+                                <div class="food-info">1 cup • 90g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">55 kcal</span>
+                                    <span class="nutrient-item">4g protein</span>
+                                    <span class="nutrient-item">11g carbs</span>
+                                    <span class="nutrient-item">0g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-cheese"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Butter</div>
+                                <div class="food-info">1 tbsp • 14g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">85 kcal</span>
+                                    <span class="nutrient-item">0g protein</span>
+                                    <span class="nutrient-item">0g carbs</span>
+                                    <span class="nutrient-item">9g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Snacks -->
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h5 class="meal-title">
+                            <i class="fas fa-cookie"></i>
+                            Snacks
+                        </h5>
+                        <div>
+                            <span class="badge bg-primary">200 kcal</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#foodSearchModal" data-meal="snacks">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="meal-body">
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-apple-whole"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Apple</div>
+                                <div class="food-info">1 medium • 182g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">95 kcal</span>
+                                    <span class="nutrient-item">0.5g protein</span>
+                                    <span class="nutrient-item">25g carbs</span>
+                                    <span class="nutrient-item">0.3g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-peanuts"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Almonds</div>
+                                <div class="food-info">15 almonds • 20g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">105 kcal</span>
+                                    <span class="nutrient-item">4g protein</span>
+                                    <span class="nutrient-item">3g carbs</span>
+                                    <span class="nutrient-item">9g fat</span>
+                                </div>
+                            </div>
+                            <div class="food-actions">
+                                <button class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Food Search Modal -->
+    <div class="modal fade" id="foodSearchModal" tabindex="-1" aria-labelledby="foodSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="foodSearchModalLabel">Add Food to Breakfast</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="foodSearch" class="form-label food-label">Search for a food</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control food-input" id="foodSearch" placeholder="Search foods...">
+                            <button class="btn btn-primary" type="button" id="searchButton">Search</button>
+                        </div>
+                    </div>
+                    
+                    <div class="search-results">
+                        <h6 class="mb-3">Search Results</h6>
+                        
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-egg"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Eggs, scrambled</div>
+                                <div class="food-info">Per 100g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">143 kcal</span>
+                                    <span class="nutrient-item">12.5g protein</span>
+                                    <span class="nutrient-item">1.0g carbs</span>
+                                    <span class="nutrient-item">9.7g fat</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary">Add</button>
+                        </div>
+                        
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-egg"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Eggs, boiled</div>
+                                <div class="food-info">Per 100g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">155 kcal</span>
+                                    <span class="nutrient-item">12.6g protein</span>
+                                    <span class="nutrient-item">1.1g carbs</span>
+                                    <span class="nutrient-item">10.6g fat</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary">Add</button>
+                        </div>
+                        
+                        <div class="food-item">
+                            <div class="food-icon">
+                                <i class="fas fa-egg"></i>
+                            </div>
+                            <div class="food-details">
+                                <div class="food-name">Eggs, fried</div>
+                                <div class="food-info">Per 100g</div>
+                                <div class="food-nutrients">
+                                    <span class="nutrient-item">196 kcal</span>
+                                    <span class="nutrient-item">13.6g protein</span>
+                                    <span class="nutrient-item">1.0g carbs</span>
+                                    <span class="nutrient-item">15.1g fat</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary">Add</button>
+                        </div>
+                    </div>
+                    
+                    <div class="add-food-form">
+                        <h6 class="mb-3">Add Selected Food</h6>
+                        
+                        <div class="selected-food mb-3">
+                            <div class="food-item">
+                                <div class="food-icon">
+                                    <i class="fas fa-egg"></i>
+                                </div>
+                                <div class="food-details">
+                                    <div class="food-name">Eggs, scrambled</div>
+                                    <div class="food-info">Per 100g</div>
+                                    <div class="food-nutrients">
+                                        <span class="nutrient-item">143 kcal</span>
+                                        <span class="nutrient-item">12.5g protein</span>
+                                        <span class="nutrient-item">1.0g carbs</span>
+                                        <span class="nutrient-item">9.7g fat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="foodAmount" class="form-label food-label">Amount</label>
+                                <input type="number" class="form-control food-input" id="foodAmount" value="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="foodUnit" class="form-label food-label">Unit</label>
+                                <select class="form-select food-input" id="foodUnit">
+                                    <option value="g" selected>grams (g)</option>
+                                    <option value="ml">milliliters (ml)</option>
+                                    <option value="oz">ounces (oz)</option>
+                                    <option value="lb">pounds (lb)</option>
+                                    <option value="cup">cup</option>
+                                    <option value="tbsp">tablespoon</option>
+                                    <option value="tsp">teaspoon</option>
+                                    <option value="serving">serving</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="addToFavorites">
+                            <label class="form-check-label" for="addToFavorites">
+                                Add to favorites
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary">Add Food</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Macronutrient distribution chart
+            const macroCtx = document.getElementById('macroChart').getContext('2d');
+            const macroChart = new Chart(macroCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fat'],
+                    datasets: [{
+                        data: [98, 210, 65],
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.8)',
+                            'rgba(67, 97, 238, 0.8)',
+                            'rgba(241, 196, 15, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Macronutrient Distribution (g)'
+                        }
+                    }
+                }
+            });
+            
+            // Calorie distribution chart
+            const calorieCtx = document.getElementById('calorieChart').getContext('2d');
+            const calorieChart = new Chart(calorieCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Breakfast', 'Lunch', 'Dinner', 'Snacks'],
+                    datasets: [{
+                        label: 'Calories',
+                        data: [420, 650, 580, 200],
+                        backgroundColor: 'rgba(67, 97, 238, 0.7)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Calories by Meal'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Update charts when theme changes
+            const themeToggles = document.querySelectorAll('.btn-theme-toggle, .btn-theme-toggle-mobile');
+            themeToggles.forEach(button => {
+                button.addEventListener('click', function() {
+                    setTimeout(() => {
+                        updateChartsForTheme();
+                    }, 100);
+                });
+            });
+            
+            function updateChartsForTheme() {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                const textColor = isDark ? '#e2e8f0' : '#718096';
+                
+                // Update macro chart
+                macroChart.options.plugins.title.color = textColor;
+                macroChart.options.plugins.legend.labels.color = textColor;
+                macroChart.update();
+                
+                // Update calorie chart
+                calorieChart.options.plugins.title.color = textColor;
+                calorieChart.options.scales.x.ticks.color = textColor;
+                calorieChart.options.scales.y.ticks.color = textColor;
+                calorieChart.options.scales.x.grid.color = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                calorieChart.options.scales.y.grid.color = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                calorieChart.update();
+            }
+            
+            // Initially set chart theme based on current mode
+            updateChartsForTheme();
+            
+            // Food Search Modal
+            const foodSearchModal = document.getElementById('foodSearchModal');
+            if (foodSearchModal) {
+                foodSearchModal.addEventListener('show.bs.modal', function(event) {
+                    // Button that triggered the modal
+                    const button = event.relatedTarget;
+                    // Extract meal type from data-* attribute
+                    const mealType = button.getAttribute('data-meal');
+                    // Update modal title
+                    const modalTitle = foodSearchModal.querySelector('.modal-title');
+                    modalTitle.textContent = `Add Food to ${mealType ? mealType.charAt(0).toUpperCase() + mealType.slice(1) : 'Meal'}`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

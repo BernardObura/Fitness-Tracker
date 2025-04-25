@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Plan Detail - FitTrack</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .plan-level {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .plan-level.beginner {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+        
+        .plan-level.intermediate {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: #3498db;
+        }
+        
+        .plan-level.advanced {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        [data-theme="dark"] .plan-level.beginner {
+            background-color: rgba(46, 204, 113, 0.2);
+        }
+        
+        [data-theme="dark"] .plan-level.intermediate {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        [data-theme="dark"] .plan-level.advanced {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+        
+        .plan-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+        
+        .back-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .back-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: background-color var(--transition-speed);
+        }
+        
+        .exercise-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .exercise-icon i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+        
+        .exercise-details {
+            flex: 1;
+        }
+        
+        .exercise-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .exercise-specs {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        .muscle-group {
+            font-size: 0.75rem;
+            background-color: var(--bg-secondary);
+            padding: 0.125rem 0.5rem;
+            border-radius: 50rem;
+            color: var(--text-secondary);
+        }
+        
+        .nav-pills .nav-link {
+            color: var(--text-primary);
+            border-radius: 0.25rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        .nav-pills .nav-link.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        
+        .day-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .day-card .card-header {
+            background-color: transparent;
+            padding: 1rem 1.25rem;
+        }
+        
+        .day-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .day-subtitle {
+            margin: 0.25rem 0 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>FitTrack</h3>
+                <button class="btn-close d-md-none" id="closeSidebar" aria-label="Close"></button>
+            </div>
+            <div class="sidebar-user">
+                <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User Profile" class="user-avatar">
+                <div class="user-info">
+                    <p class="user-name">John Doe</p>
+                    <p class="user-email">john@example.com</p>
+                </div>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="active"><a href="workout-plans.html"><i class="fas fa-list-check"></i> Workout Plans</a></li>
+                <li><a href="exercises.html"><i class="fas fa-dumbbell"></i> Exercises</a></li>
+                <li><a href="progress.html"><i class="fas fa-chart-line"></i> Progress</a></li>
+                <li><a href="log-workout.html"><i class="fas fa-calendar-plus"></i> Log Workout</a></li>
+                <li><a href="settings.html"><i class="fas fa-gear"></i> Settings</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <button class="btn btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <button class="btn btn-theme-toggle"><i class="fas fa-moon"></i></button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation -->
+            <header class="top-nav">
+                <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+                <h1 class="page-title">Workout Plan</h1>
+                <div class="top-nav-right">
+                    <button class="btn btn-theme-toggle-mobile"><i class="fas fa-moon"></i></button>
+                    <div class="dropdown">
+                        <button class="btn dropdown-toggle profile-btn" type="button" data-bs-toggle="dropdown">
+                            <img src="https://randomuser.me/api/portraits/men/41.jpg" alt="User">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="settings.html">Profile</a></li>
+                            <li><a class="dropdown-item" href="#">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="container-fluid content-area">
+                <a href="workout-plans.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Workout Plans
+                </a>
+                
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start mb-4">
+                    <div>
+                        <h2 class="mb-1">Full Body Strength</h2>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="plan-level intermediate">Intermediate</span>
+                            <div class="plan-meta">
+                                <span><i class="far fa-calendar-alt me-1"></i> 8 weeks</span>
+                                <span><i class="fas fa-bullseye me-1"></i> Goal: Strength</span>
+                                <span><i class="fas fa-calendar-day me-1"></i> 4 days/week</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary mt-3 mt-md-0">
+                        <i class="fas fa-play-circle me-2"></i>Start Plan
+                    </button>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">About This Plan</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>A comprehensive workout plan designed to build strength across all major muscle groups through progressive overload. This intermediate-level program focuses on compound exercises and gradual progression to help you build strength efficiently. The plan is structured as a 4-day split, targeting different muscle groups each day while allowing adequate recovery time.</p>
+                        <p>The workouts are designed to be completed in 45-60 minutes, making it accessible for those with busy schedules. Each exercise includes recommended sets, reps, and rest periods to optimize your training.</p>
+                    </div>
+                </div>
+                
+                <ul class="nav nav-pills mb-4" id="planDetailTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="workout-days-tab" data-bs-toggle="pill" data-bs-target="#workout-days" type="button" role="tab" aria-controls="workout-days" aria-selected="true">Workout Days</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="schedule-tab" data-bs-toggle="pill" data-bs-target="#schedule" type="button" role="tab" aria-controls="schedule" aria-selected="false">Schedule</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="planDetailTabsContent">
+                    <!-- Workout Days Tab -->
+                    <div class="tab-pane fade show active" id="workout-days" role="tabpanel" aria-labelledby="workout-days-tab">
+                        <!-- Day 1 -->
+                        <div class="card day-card">
+                            <div class="card-header">
+                                <h5 class="day-title">Day 1: Upper Body Focus</h5>
+                                <p class="day-subtitle">Chest, shoulders, and triceps</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="exercise-list">
+                                    <!-- Exercise 1 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Barbell Bench Press</span>
+                                                <span class="muscle-group">Chest</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                4 sets × 8-10 reps • Rest: 90s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 2 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Overhead Press</span>
+                                                <span class="muscle-group">Shoulders</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 8-10 reps • Rest: 90s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 3 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Incline Dumbbell Press</span>
+                                                <span class="muscle-group">Upper Chest</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 10-12 reps • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 4 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Lateral Raises</span>
+                                                <span class="muscle-group">Shoulders</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 12-15 reps • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 5 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Tricep Pushdowns</span>
+                                                <span class="muscle-group">Triceps</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 12-15 reps • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 2 -->
+                        <div class="card day-card">
+                            <div class="card-header">
+                                <h5 class="day-title">Day 2: Lower Body Focus</h5>
+                                <p class="day-subtitle">Quadriceps, hamstrings, and calves</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="exercise-list">
+                                    <!-- Exercise 1 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Barbell Squat</span>
+                                                <span class="muscle-group">Quadriceps</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                4 sets × 8-10 reps • Rest: 120s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 2 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Romanian Deadlift</span>
+                                                <span class="muscle-group">Hamstrings</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 10-12 reps • Rest: 90s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 3 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Leg Press</span>
+                                                <span class="muscle-group">Quadriceps</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 10-12 reps • Rest: 90s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 4 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Walking Lunges</span>
+                                                <span class="muscle-group">Quadriceps/Glutes</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 12 steps per leg • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 5 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Standing Calf Raises</span>
+                                                <span class="muscle-group">Calves</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                4 sets × 15-20 reps • Rest: 45s
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 3 -->
+                        <div class="card day-card">
+                            <div class="card-header">
+                                <h5 class="day-title">Day 3: Rest Day</h5>
+                                <p class="day-subtitle">Active recovery or light cardio</p>
+                            </div>
+                            <div class="card-body">
+                                <p>Take this day to rest and recover. You may perform light activities such as walking, swimming, or stretching to promote blood flow and recovery.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Day 4 -->
+                        <div class="card day-card">
+                            <div class="card-header">
+                                <h5 class="day-title">Day 4: Pull Day</h5>
+                                <p class="day-subtitle">Back and biceps</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="exercise-list">
+                                    <!-- Exercise 1 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Pull-Ups / Lat Pulldowns</span>
+                                                <span class="muscle-group">Back</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                4 sets × 8-10 reps • Rest: 90s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 2 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Bent-Over Barbell Rows</span>
+                                                <span class="muscle-group">Back</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 8-10 reps • Rest: 90s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 3 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Seated Cable Rows</span>
+                                                <span class="muscle-group">Middle Back</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 10-12 reps • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 4 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Barbell Bicep Curls</span>
+                                                <span class="muscle-group">Biceps</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 10-12 reps • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Exercise 5 -->
+                                    <div class="exercise-item">
+                                        <div class="exercise-icon">
+                                            <i class="fas fa-dumbbell"></i>
+                                        </div>
+                                        <div class="exercise-details">
+                                            <div class="exercise-title">
+                                                <span>Hammer Curls</span>
+                                                <span class="muscle-group">Biceps/Forearms</span>
+                                            </div>
+                                            <div class="exercise-specs">
+                                                3 sets × 12-15 reps • Rest: 60s
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Schedule Tab -->
+                    <div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Weekly Schedule</h5>
+                                <p class="card-subtitle">Recommended training days</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center py-5">
+                                    <i class="fas fa-calendar-alt fa-4x text-muted mb-3"></i>
+                                    <h4 class="mb-2">Not Scheduled Yet</h4>
+                                    <p class="text-muted mb-4">Start this workout plan to add it to your schedule.</p>
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-play-circle me-2"></i>Start Plan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>
