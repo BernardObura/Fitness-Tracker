@@ -535,3 +535,18 @@ async function searchFoods(query) {
 const today = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById("dateToday").textContent = today.toLocaleDateString('en-US', options);
+
+
+const greetingSpan = document.getElementById("greeting");
+const currentHour = new Date().getHours();
+  let greeting;
+
+  if (currentHour < 12) {
+    greeting = "morning";
+  } else if (currentHour < 18) {
+    greeting = "afternoon";
+  } else {
+    greeting = "evening";
+  }
+
+  greetingSpan.textContent = greeting;
